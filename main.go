@@ -1,12 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 )
 
 const (
-	localhost = "127.0.0.1:80"
+	localhost = ":80"
 )
 
 type Handler struct {
@@ -21,7 +22,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 func hello(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("header", "value")
-	_, err := w.Write([]byte("hello"))
+
+	body, err := json.Marshal(User{ID: "1234"})
+	if err != nil {
+		log.Println(err)
+	}
+
+	_, err = w.Write(body)
 	if err != nil {
 		log.Println(err)
 	}
