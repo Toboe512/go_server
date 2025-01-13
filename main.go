@@ -1,46 +1,38 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
+	"go_server/server"
+	"go_server/server/handlers"
+	"go_server/storage"
 	"log"
-	"net/http"
 )
 
 const (
-	localhost = ":80"
+	localhost         = ":80"
+	storageSqlitePath = "data/sqlite/storage.db"
 )
 
-type Handler struct {
-}
-
-func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	_, err := w.Write([]byte("page"))
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-func hello(w http.ResponseWriter, req *http.Request) {
-	w.Header().Add("header", "value")
-
-	body, err := json.Marshal(User{ID: "1234"})
-	if err != nil {
-		log.Println(err)
-	}
-
-	_, err = w.Write(body)
-	if err != nil {
-		log.Println(err)
-	}
-	w.WriteHeader(http.StatusAccepted)
-}
+var err error
 
 func main() {
-	http.HandleFunc("/hello", hello)
+	srv := server.New(localhost)
+	ctx := context.TODO()
 
-	http.Handle("/page", &Handler{})
-	err := http.ListenAndServe(localhost, nil)
+	storage.DB, err = storage.New(storageSqlitePath)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	println(err)
+	if err = storage.DB.Init(ctx); err != nil {
+		log.Fatal(err)
+	}
+
+	srv.Handler(handlers.UserGetHand())
+
+	err = srv.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 }
