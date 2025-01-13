@@ -63,6 +63,18 @@ func (s Storage) GetById(ctx context.Context, id string) (*dao.Data, error) {
 	}, nil
 }
 
+func (s Storage) Save(ctx context.Context, data *dao.Data) error {
+
+	q := `INSERT INTO usr_data (id, data) VALUES (?, ?)`
+
+	if _, err := s.db.ExecContext(ctx, q, data.ID, data.Data); err != nil {
+		return fmt.Errorf("can't save data in sqlite: %w", err)
+	}
+
+	return nil
+
+}
+
 func (s Storage) Init(ctx context.Context) error {
 	//TODO определить столбцы таблицы
 	q := `CREATE TABLE IF NOT EXISTS usr_data (id TEXT, data TEXT)`
