@@ -1,5 +1,6 @@
 package dto
 
-type User struct {
-	ID string `json:"id"`
+type Data struct {
+	ID   string `json:"id"`
+	Data string `json:"data"`
 }

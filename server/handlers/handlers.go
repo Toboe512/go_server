@@ -3,6 +3,8 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"go_server/dto"
+	"go_server/mappers"
 	"go_server/storage"
 	"go_server/storage/dao"
 	"io"
@@ -26,7 +28,8 @@ func UserGetHand() *Handler {
 
 func user(w http.ResponseWriter, req *http.Request) {
 
-	var data *dao.Data
+	var reqData *dao.Data
+	var resData *dto.Data
 	var err error = nil
 	var respBody []byte
 
@@ -36,7 +39,8 @@ func user(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			log.Println(err)
 		}
-		data, err = storage.DB.GetById(context.TODO(), queryVars.Get("id"))
+		reqData, err = storage.DB.GetById(context.TODO(), queryVars.Get("id"))
+		resData = mapers.DataToDto(reqData)
 		if err != nil {
 			log.Println(err)
 		}
@@ -48,21 +52,22 @@ func user(w http.ResponseWriter, req *http.Request) {
 
 		log.Println(rq)
 
-		err = json.Unmarshal(rq, &data)
+		err = json.Unmarshal(rq, &reqData)
 		if err != nil {
 			log.Println(err)
 		}
 
-		err = storage.DB.Save(context.TODO(), data)
+		err = storage.DB.Save(context.TODO(), reqData)
 		if err != nil {
 			log.Println(err)
 		}
+		resData = mapers.DataToDao(reqData)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
-	respBody, err = json.Marshal(data)
+	respBody, err = json.Marshal(resData)
 	if err != nil {
 		log.Println(err)
 	}
