@@ -75,9 +75,18 @@ func (s Storage) Save(ctx context.Context, data *dao.Data) error {
 
 }
 
+func (s Storage) Delete(ctx context.Context, id string) error {
+	q := `DELETE FROM usr_data WHERE id = ?`
+
+	if _, err := s.db.ExecContext(ctx, q, id); err != nil {
+		return fmt.Errorf("can't remove data in sqlite: %w", err)
+	}
+	return nil
+}
+
 func (s Storage) Init(ctx context.Context) error {
 	//TODO определить столбцы таблицы
-	q := `CREATE TABLE IF NOT EXISTS usr_data (id TEXT, data TEXT)`
+	q := `CREATE TABLE IF NOT EXISTS usr_data (id TEXT UNIQUE, data TEXT)`
 
 	_, err := s.db.ExecContext(ctx, q)
 
