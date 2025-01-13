@@ -8,6 +8,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"go_server/storage/dao"
 	"os"
+	"strings"
 )
 
 type Storage struct {
@@ -21,7 +22,10 @@ var ErrNoLoadData = errors.New("no load data")
 var DB *Storage
 
 func New(path string) (*Storage, error) {
-	if err := os.MkdirAll(path, defaultPerm); err != nil {
+
+	splitPath := strings.Split(path, "/")
+	basePath := strings.Join(splitPath[:len(splitPath)-1], "/")
+	if err := os.MkdirAll(basePath, defaultPerm); err != nil {
 		return nil, err
 	}
 	db, err := sql.Open("sqlite3", path)
