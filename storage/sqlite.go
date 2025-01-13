@@ -7,17 +7,23 @@ import (
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"go_server/storage/dao"
+	"os"
 )
-
-var ErrNoLoadData = errors.New("no load data")
-
-var DB *Storage
 
 type Storage struct {
 	db *sql.DB
 }
 
+const defaultPerm = 0774
+
+var ErrNoLoadData = errors.New("no load data")
+
+var DB *Storage
+
 func New(path string) (*Storage, error) {
+	if err := os.MkdirAll(path, defaultPerm); err != nil {
+		return nil, err
+	}
 	db, err := sql.Open("sqlite3", path)
 
 	if err != nil {
